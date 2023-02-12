@@ -3,103 +3,66 @@ import axios from 'axios';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 
-//const apiKey = '31934367-658e9fff939a1c4d22479e433';
-axios.defaults.baseURL = 'https://pixabay.com/api/';
+const apiKey = '31934367-658e9fff939a1c4d22479e433';
 
 class App extends Component {
   state = {
-    //URL: 'https://pixabay.com/api/',
-    //API_KEY: '31934367-658e9fff939a1c4d22479e433',
-    search: '',
+    searchWords: '',
     images: [],
-    error: '',
-    status: 'idle',
-    page: 1,
-    currentImage: null,
+    showModal: false,
+    modalImage: '',
+    showLoader: false,
+    currentPage: 1,
   };
 
-  componentDidUpdate(prevState) {
-    const { search, page } = this.state;
-    if (prevState.search !== search || prevState.page !== page) {
-      this.fetchPictures();
-    }
-  }
-
-  async componentDiMount(searchValue, page) {
-    const hits = await axios.get(
-      `?q=dog&page=1&key=31934367-658e9fff939a1c4d22479e433&image_type=photo&orientation=horizontal&per_page=12`
-    );
-
-    this.setState(({ images }) => ({
-      images: [...images, ...hits],
-    }));
-    return hits.data;
-  }
-
-  // pushImagesToState = response => {
-  //   const imagesFromResponse = response.data.hits;
-  //   let newSearchArray = [];
-  //   newSearchArray = [...this.state.images, ...imagesFromResponse];
-  //   this.setState(({ images }) => ({ images: newSearchArray }));
-  // };
-
-  // getImages = async (searchValue, page) => {
-  //   const response = await axios.get(
-  //     `?q=${searchValue}&page=${page}&key=31844347-16adccdcc2872ee3a7bce49dd&image_type=photo&orientation=horizontal&per_page=12`
-  //   );
-  //   return response.data;
-  // };
-
-  //   async componentDidUpdate(_, { page, query }) {
-  //     if (
-  //       (page !== this.state.page || query !== this.state.query) &&
-  //       this.state.query.trim()
-  //     ) {
-  //       try {
-  //         this.setState({ loader: !this.state.loader });
-  //         await getImages(this.state.query, this.state.page).then(resp => {
-  //           if (resp.hits.length) {
-  //             this.setState(prevState => {
-  //               return {
-  //                 images: [...prevState.images, ...resp.hits],
-  //                 showBtn: this.state.page < Math.ceil(resp.totalHits / 12),
-  //               };
-  //             });
-  //           } else {
-  //             toast.error('Enter a more meaningful search term');
-  //           }
-  //         });
-  //       } catch (error) {
-  //         console.log(error);
-  //         toast.error("We're in trouble, sorry");
-  //       } finally {
-  //         this.setState({ loader: !this.state.loader });
-  //       }
-  //     }
-  //   }
-  // fetchImage = () => {
-  //   return fetch(
-  //     `${this.state.URL}?q=${this.state.query}&page=${this.state.page}&key=${this.state.API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-  //   );
-  // };
-
-  searchImages = ({ search }) => {
-    this.setState({ search, images: [], page: 1 });
+  pushImagesToState = response => {
+    const imagesFromResponse = response.data.hits;
+    let newSearchArray = [];
+    newSearchArray = [...this.state.images, ...imagesFromResponse];
+    this.setState(({ images }) => ({ images: newSearchArray }));
   };
 
-  showImage = img => {
+  //  loaderToggle = bool => {
+  //     return this.setState(({ showLoader }) => ({ showLoader: bool }));
+  //   };
+
+  getImages(words, page) {
+    // this.loaderToggle(true);
+    axios
+      .get(
+        `https://pixabay.com/api/?q=${words}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`
+      )
+      .then(response => {
+        this.pushImagesToState(response);
+        //this.loaderToggle(false);
+        this.setState(prevState => ({
+          currentPage: prevState.currentPage + 1,
+        }));
+      });
+  }
+
+  searchFormSubmit = event => {
+    event.preventDefault();
     this.setState({
-      currentImage: img,
+      searchWords: '',
+      images: [],
+      showModal: false,
+      modalImage: '',
+      currentPage: 1,
     });
+    const searchWordsValue = event.target[1].value;
+
+    this.setState({ searchWords: searchWordsValue });
+    const page = 1;
+    this.getImages(searchWordsValue, page);
+    event.target.reset();
   };
 
   render() {
-    const { images } = this.state;
-    const { searchImages, showImage } = this;
     return (
       <>
-        <Searchbar onSubmit={searchImages} />
-        <ImageGallery images={images} showPicture={showImage} />
+        <Searchbar onSubmit={this.searchFormSubmit} />
+        <ImageGallery imagesArray={this.state.images} />
       </>
     );
   }
