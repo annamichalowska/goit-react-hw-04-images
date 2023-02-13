@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import propTypes from 'prop-types';
-//import css from './Searchbar.module.css';
+//import propTypes from 'prop-types';
+import css from './Searchbar.module.css';
 
 // class Searchbar extends Component {
 //   state = {
@@ -50,26 +50,67 @@ import propTypes from 'prop-types';
 //   }
 // }
 
+// class Searchbar extends Component {
+//   static propTypes = { onSubmit: propTypes.func };
+//   render() {
+//     return (
+//       <header className="Searchbar">
+//         <form
+//           className="SearchForm"
+//           onSubmit={event => this.props.onSubmit(event)}
+//         >
+//           <button type="submit" className="SearchForm-button">
+//             <span className="SearchForm-button-label">Search</span>
+//           </button>
+
+//           <input
+//             className="SearchForm-input"
+//             type="text"
+//             autoComplete="off"
+//             autoFocus
+//             placeholder="Search images and photos"
+//           />
+//         </form>
+//       </header>
+//     );
+//   }
+// }
+
 class Searchbar extends Component {
-  static propTypes = { onSubmit: propTypes.func };
+  state = {
+    searchName: '',
+  };
+  handleNameChange = e => {
+    this.setState({ searchName: e.currentTarget.value.toLowerCase() });
+  };
+  onSubmit = e => {
+    e.preventDefault();
+
+    if (this.state.searchName.trim() === '') {
+      // toast.error('Please select an image', {
+      //   theme: ' ',
+      // });
+      return;
+    }
+    this.props.onSubmit(this.state.searchName);
+  };
+
   render() {
     return (
-      <header className="Searchbar">
-        <form
-          className="SearchForm"
-          onSubmit={event => this.props.onSubmit(event)}
-        >
-          <button type="submit" className="SearchForm-button">
-            <span className="SearchForm-button-label">Search</span>
-          </button>
-
+      <header className={css.searchbar}>
+        <form className={css.form} onSubmit={this.onSubmit}>
           <input
-            className="SearchForm-input"
+            className={css.searchForm__input}
             type="text"
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
+            value={this.state.searchName}
+            onChange={this.handleNameChange}
           />
+          <button type="submit" className={css.button}>
+            {/* <MdOutlineImageSearch /> */}Search
+          </button>
         </form>
       </header>
     );
