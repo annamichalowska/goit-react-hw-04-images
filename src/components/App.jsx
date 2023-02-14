@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-//import React from 'react';
-//import axios from 'axios';
-import Searchbar from './Searchbar/Searchbar';
-import ImageGallery from './ImageGallery/ImageGallery';
 import css from './App.module.css';
 
-//const apiKey = '31934367-658e9fff939a1c4d22479e433';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
+import Modal from './Modal/Modal';
+import Loader from './Loader/Loader';
 
 class App extends Component {
   state = {
@@ -25,8 +25,24 @@ class App extends Component {
       this.setState({ photo: [] });
       return;
     } else {
-      alert('there is no photo');
+      alert('There is no photo with this name');
     }
+  };
+
+  hendlerLoadMoreClick = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
+  };
+
+  modalOpen = url => {
+    this.setState({
+      currentLargeImageURL: url,
+    });
+  };
+
+  modalClose = () => {
+    this.setState({
+      currentLargeImageURL: '',
+    });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -41,7 +57,6 @@ class App extends Component {
     if (prevName !== photoName || prevPage !== page) {
       this.setState({ loading: true });
 
-      // setTimeout(() => {
       fetch(
         `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${per_page}`
       )
@@ -59,32 +74,25 @@ class App extends Component {
         )
         .catch(error => this.setState({ error }))
         .finally(this.setState({ loading: false }));
-      // }, 2000);
     }
   }
 
   render() {
-    const { page, photo } = this.state;
+    const { page, photo, currentLargeImageURL, searchTotal, loading } =
+      this.state;
     return (
-      <section className={css.app}>
+      <div className={css.app}>
         <Searchbar onSubmit={this.handlerFormSubmit} page={page} />
+        {photo && <ImageGallery photoName={photo} onClick={this.modalOpen} />}
 
-        {photo && (
-          <ImageGallery
-            photoName={photo}
-            onClick={this.onOpenModalWithLargeImage}
-          />
-        )}
-
-        {/* {currentLargeImageURL && (
-          <Modal closeModal={this.onModalClose} url={currentLargeImageURL} />
+        {currentLargeImageURL && (
+          <Modal closeModal={this.modalClose} url={currentLargeImageURL} />
         )}
         {loading && <Loader />}
         {!loading && searchTotal > 12 && (
-          <Button onClick={this.hendlerMoreClick} />
+          <Button onClick={this.hendlerLoadMoreClick} />
         )}
-        <ToastContainer autoClose={2500} /> */}
-      </section>
+      </div>
     );
   }
 }
