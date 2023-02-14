@@ -24,6 +24,9 @@ class App extends Component {
       this.setState({ photoName, page: 1 });
       this.setState({ photo: [] });
       return;
+    }
+    if (photoName === this.state.photoName) {
+      alert('There is the same name');
     } else {
       alert('There is no photo with this name');
     }
