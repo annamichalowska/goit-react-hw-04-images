@@ -7,10 +7,11 @@ import Button from './Button/Button';
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
 
+const PER_PAGE = 12;
+
 class App extends Component {
   state = {
     page: 1,
-    per_page: 12,
     photo: [],
     photoName: '',
     currentLargeImageURL: '',
@@ -36,13 +37,13 @@ class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  modalOpen = url => {
+  handleOpen = url => {
     this.setState({
       currentLargeImageURL: url,
     });
   };
 
-  modalClose = () => {
+  handleClose = () => {
     this.setState({
       currentLargeImageURL: '',
     });
@@ -51,7 +52,7 @@ class App extends Component {
   componentDidUpdate(prevProps, prevState) {
     const prevName = prevState.photoName;
     const prevPage = prevState.page;
-    const { photoName, page, per_page } = this.state;
+    const { photoName, page } = this.state;
     const key = 'key=31934367-658e9fff939a1c4d22479e433';
 
     if (photoName !== prevName) {
@@ -61,7 +62,7 @@ class App extends Component {
       this.setState({ loading: true });
 
       fetch(
-        `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${per_page}`
+        `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
       )
         .then(res => {
           if (res.ok) {
@@ -86,10 +87,10 @@ class App extends Component {
     return (
       <div className={css.app}>
         <Searchbar onSubmit={this.handlerFormSubmit} page={page} />
-        {photo && <ImageGallery photoName={photo} onClick={this.modalOpen} />}
+        {photo && <ImageGallery photoName={photo} onClick={this.handleOpen} />}
 
         {currentLargeImageURL && (
-          <Modal closeModal={this.modalClose} url={currentLargeImageURL} />
+          <Modal closeModal={this.handleClose} url={currentLargeImageURL} />
         )}
         {loading && <Loader />}
         {!loading && searchTotal > 12 && (
