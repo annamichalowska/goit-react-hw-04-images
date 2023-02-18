@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import css from './Button.module.css';
 
 const Button = ({ onClick }) => (
-  <button onClick={() => onClick()} className={css.button} type="button">
+  <button onClick={onClick} className={css.button} type="button">
     Load more
   </button>
 );

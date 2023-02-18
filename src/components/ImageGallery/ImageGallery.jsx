@@ -12,10 +12,11 @@ const ImageGallery = ({ photoName, onClick }) => (
 );
 
 ImageGallery.propTypes = {
-  photo: propTypes.arrayOf({
-    id: propTypes.number,
-  }).isRequired,
-  photoName: propTypes.array.isRequired,
+  photoName: propTypes.arrayOf(
+    propTypes.shape({
+      id: propTypes.number.isRequired,
+    }).isRequired
+  ).isRequired,
   onClick: propTypes.func.isRequired,
 };
 

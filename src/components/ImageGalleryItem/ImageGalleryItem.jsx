@@ -5,16 +5,22 @@ import css from './ImageGalleryItem.module.css';
 const ImageGalleryItem = ({
   photo: { webformatURL, tags, largeImageURL },
   onClick,
-}) => (
-  <li className={css.item}>
-    <img
-      className={css.image}
-      src={webformatURL}
-      alt={tags}
-      onClick={() => onClick(largeImageURL)}
-    />
-  </li>
-);
+}) => {
+  const handleClick = () => {
+    onClick(largeImageURL);
+  };
+
+  return (
+    <li className={css.item}>
+      <img
+        className={css.image}
+        src={webformatURL}
+        alt={tags}
+        onClick={handleClick}
+      />
+    </li>
+  );
+};
 
 ImageGalleryItem.propTypes = {
   photo: propTypes.shape({
