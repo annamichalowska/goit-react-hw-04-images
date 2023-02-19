@@ -11,7 +11,7 @@ const PER_PAGE = 12;
 
 function App() {
   const [page, setPage] = useState(1);
-  const [photos, setPhotos] = useState([]);
+  const [photo, setPhoto] = useState([]);
   const [photoName, setPhotoName] = useState('');
   const [currentLargeImageURL, setCurrentLargeImageURL] = useState('');
   const [searchTotal, setSearchTotal] = useState(null);
@@ -19,16 +19,20 @@ function App() {
   const [error, setError] = useState(null);
 
   const key = 'key=31934367-658e9fff939a1c4d22479e433';
+
   const prevNameRef = useRef(photoName);
   const prevPageRef = useRef(page);
-  //console.log('prevNameRef:', prevNameRef);
+
+  useEffect(() => {
+    prevNameRef.current = photoName;
+  }, [photoName]);
 
   const handlerFormSubmit = photoName => {
     const prevName = prevNameRef.current;
     if (photoName !== prevName) {
       setPhotoName(photoName);
       setPage(1);
-      setPhotos([]);
+      setPhoto([]);
       console.log('photoName:', photoName);
       console.log('prevName:', prevName);
       return;
@@ -56,8 +60,8 @@ function App() {
     const fetchPhotos = () => {
       const prevName = prevNameRef.current;
       const prevPage = prevPageRef.current;
-      if (prevName !== photoName) {
-        setPhotos([]);
+      if (photoName !== prevName) {
+        setPhoto([]);
       }
 
       if (prevName !== photoName || prevPage !== page) {
@@ -70,18 +74,14 @@ function App() {
             if (res.ok) {
               return res.json();
             }
-            return Promise.reject(new Error(error));
+            return Promise.reject(new Error());
           })
-          .then(result => {
-            setPhotos(prevPhotos => [...prevPhotos, ...result.hits]);
-            setSearchTotal(result.total);
+          .then(photo => {
+            setPhoto(prevPhoto => [...prevPhoto.photo, ...photo.hits]);
+            setSearchTotal(photo.total);
           })
-          .catch(error => {
-            setError(error);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+          .catch(error => setError(error))
+          .finally(() => setLoading(false));
       }
     };
     fetchPhotos();
@@ -90,7 +90,7 @@ function App() {
   return (
     <div className={css.app}>
       <Searchbar onSubmit={handlerFormSubmit} page={page} />
-      {photos && <ImageGallery photoName={photos} onClick={handleOpen} />}
+      {photo && <ImageGallery photoName={photo} onClick={handleOpen} />}
 
       {currentLargeImageURL && (
         <Modal closeModal={handleClose} url={currentLargeImageURL} />
