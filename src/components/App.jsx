@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import css from './App.module.css';
 
 import Searchbar from './Searchbar/Searchbar';
@@ -20,28 +20,35 @@ function App() {
 
   const key = 'key=31934367-658e9fff939a1c4d22479e433';
 
-  const prevNameRef = useRef(photoName);
-  const prevPageRef = useRef(page);
+  // const prevNameRef = useRef(photoName);
+  // const prevPageRef = useRef(page);
 
-  useEffect(() => {
-    prevNameRef.current = photoName;
-  }, [photoName]);
+  //  useEffect(() => {
+  //    const newPhotoName = photoName.current;
+  //  }, [photoName]);
 
-  const handlerFormSubmit = photoName => {
-    const prevName = prevNameRef.current;
-    if (photoName !== prevName) {
-      setPhotoName(photoName);
+  const handlerFormSubmit = newPhotoName => {
+    //const prevName = prevNameRef.current;
+    // if (photoName !== newPhotoName) {
+    //   setPhotoName(newPhotoName);
+    //   setPage(1);
+    //   setPhoto([]);
+    //   console.log('photoName:', photoName);
+    //   console.log('prevName:', newPhotoName);
+    //   return;
+    // }
+    console.log(newPhotoName);
+    if (photoName === newPhotoName) {
+      return alert('There is the same name');
+    }
+    if (photoName !== newPhotoName) {
+      setPhotoName(newPhotoName);
       setPage(1);
       setPhoto([]);
-      console.log('photoName:', photoName);
-      console.log('prevName:', prevName);
-      return;
     }
-    if (photoName === prevName) {
-      return alert('There is the same name');
-    } else {
-      alert('There is no photo with this name');
-    }
+    // else {
+    //   alert('There is no photo with this name');
+    // }
   };
 
   const handlerLoadMoreClick = () => {
@@ -58,34 +65,46 @@ function App() {
 
   useEffect(() => {
     const fetchPhotos = () => {
-      const prevName = prevNameRef.current;
-      const prevPage = prevPageRef.current;
-      if (photoName !== prevName) {
-        setPhoto([]);
-      }
+      // const prevName = prevNameRef.current;
+      // const prevPage = prevPageRef.current;
+      //if (photoName !== prevName) {
+      //   setPhoto([]);
+      // }
 
-      if (prevName !== photoName || prevPage !== page) {
-        setLoading(true);
+      //if (prevName !== photoName || prevPage !== page) {
+      // if (photoName.length === 0) {
+      //   setLoading(false);
+      // }
+      return fetch(
+        `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
+      )
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+          return Promise.reject(new Error());
+        })
+        .then(photo => {
+          if (!photo.total) {
+            alert('There is no photo with this name');
+          }
+          return photo;
+          //setPhoto(prevPhoto => [...prevPhoto, ...photo.hits]);
+          // setSearchTotal(photo.total);
 
-        fetch(
-          `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
-        )
-          .then(res => {
-            if (res.ok) {
-              return res.json();
-            }
-            return Promise.reject(new Error());
-          })
-          .then(photo => {
-            setPhoto(prevPhoto => [...prevPhoto.photo, ...photo.hits]);
-            setSearchTotal(photo.total);
-          })
-          .catch(error => setError(error))
-          .finally(() => setLoading(false));
-      }
+          // if (!photo || !photo.hits || photo.hits.length === 0) {
+          //   alert('There is no photo with this name');
+          // }
+        })
+        .catch(error => setError(error))
+        .finally(() => setLoading(false));
     };
-    fetchPhotos();
-  }, [photoName, page, error]);
+
+    fetchPhotos().then(photo => {
+      setPhoto(prevPhoto => [...prevPhoto, ...photo.hits]);
+      setSearchTotal(photo.total);
+    });
+  }, [photoName, page, error, photo]);
 
   return (
     <div className={css.app}>
