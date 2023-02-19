@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import css from './App.module.css';
 
 import Searchbar from './Searchbar/Searchbar';
@@ -18,15 +18,23 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handlerFormSubmit = (photoName) => {
-    if (!photoName) {
+  const key = 'key=31934367-658e9fff939a1c4d22479e433';
+  const prevNameRef = useRef(photoName);
+  const prevPageRef = useRef(page);
+  //console.log('prevNameRef:', prevNameRef);
+
+  const handlerFormSubmit = photoName => {
+    const prevName = prevNameRef.current;
+    if (photoName !== prevName) {
       setPhotoName(photoName);
       setPage(1);
       setPhotos([]);
+      console.log('photoName:', photoName);
+      console.log('prevName:', prevName);
       return;
     }
-    if (photoName) {
-      alert('There is the same name');
+    if (photoName === prevName) {
+      return alert('There is the same name');
     } else {
       alert('There is no photo with this name');
     }
@@ -45,34 +53,39 @@ function App() {
   };
 
   useEffect(() => {
-    const key = 'key=31934367-658e9fff939a1c4d22479e433';
+    const fetchPhotos = () => {
+      const prevName = prevNameRef.current;
+      const prevPage = prevPageRef.current;
+      if (prevName !== photoName) {
+        setPhotos([]);
+      }
 
-    if (!photoName || page === 0) {
-      return;
-    }
+      if (prevName !== photoName || prevPage !== page) {
+        setLoading(true);
 
-    setLoading(true);
-
-    fetch(
-      `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
-    )
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-        return Promise.reject(new Error());
-      })
-      .then(result => {
-        setPhotos(prevPhotos => [...prevPhotos, ...result.hits]);
-        setSearchTotal(result.total);
-      })
-      .catch(error => {
-        setError(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [photoName, page]);
+        fetch(
+          `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
+        )
+          .then(res => {
+            if (res.ok) {
+              return res.json();
+            }
+            return Promise.reject(new Error(error));
+          })
+          .then(result => {
+            setPhotos(prevPhotos => [...prevPhotos, ...result.hits]);
+            setSearchTotal(result.total);
+          })
+          .catch(error => {
+            setError(error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    };
+    fetchPhotos();
+  }, [photoName, page, error]);
 
   return (
     <div className={css.app}>
