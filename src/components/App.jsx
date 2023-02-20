@@ -20,24 +20,7 @@ function App() {
 
   const key = 'key=31934367-658e9fff939a1c4d22479e433';
 
-  // const prevNameRef = useRef(photoName);
-  // const prevPageRef = useRef(page);
-
-  //  useEffect(() => {
-  //    const newPhotoName = photoName.current;
-  //  }, [photoName]);
-
   const handlerFormSubmit = newPhotoName => {
-    //const prevName = prevNameRef.current;
-    // if (photoName !== newPhotoName) {
-    //   setPhotoName(newPhotoName);
-    //   setPage(1);
-    //   setPhoto([]);
-    //   console.log('photoName:', photoName);
-    //   console.log('prevName:', newPhotoName);
-    //   return;
-    // }
-    console.log(newPhotoName);
     if (photoName === newPhotoName) {
       return alert('There is the same name');
     }
@@ -46,9 +29,6 @@ function App() {
       setPage(1);
       setPhoto([]);
     }
-    // else {
-    //   alert('There is no photo with this name');
-    // }
   };
 
   const handlerLoadMoreClick = () => {
@@ -64,17 +44,14 @@ function App() {
   };
 
   useEffect(() => {
+    if (photoName === '') {
+      return;
+    }
+    setLoading(true);
     const fetchPhotos = () => {
-      // const prevName = prevNameRef.current;
-      // const prevPage = prevPageRef.current;
-      //if (photoName !== prevName) {
-      //   setPhoto([]);
-      // }
-
-      //if (prevName !== photoName || prevPage !== page) {
-      // if (photoName.length === 0) {
-      //   setLoading(false);
-      // }
+      if (!photoName) {
+        return;
+      }
       return fetch(
         `https://pixabay.com/api/?q=${photoName}&page=${page}&${key}&image_type=photo&orientation=horizontal&per_page=${PER_PAGE}`
       )
@@ -89,12 +66,6 @@ function App() {
             alert('There is no photo with this name');
           }
           return photo;
-          //setPhoto(prevPhoto => [...prevPhoto, ...photo.hits]);
-          // setSearchTotal(photo.total);
-
-          // if (!photo || !photo.hits || photo.hits.length === 0) {
-          //   alert('There is no photo with this name');
-          // }
         })
         .catch(error => setError(error))
         .finally(() => setLoading(false));
@@ -104,7 +75,7 @@ function App() {
       setPhoto(prevPhoto => [...prevPhoto, ...photo.hits]);
       setSearchTotal(photo.total);
     });
-  }, [photoName, page, error, photo]);
+  }, [photoName, page, error]);
 
   return (
     <div className={css.app}>
